@@ -1,19 +1,12 @@
-import { useState } from 'react';
 
 const Home = () => {
 
-    const [posts, setPosts] = useState([]);
-
     function handleClick() {
-        fetch('http://localhost:8000/api/chats/')
-         .then((res) => res.json())
-         .then((data) => {
-            console.log(data);
-            setPosts(data);
-         })
-         .catch((err) => {
-            console.log(err.message);
-         });
+        fetch('http://localhost:8000/api/chats/', {
+            credentials: 'same-origin',
+            headers: { "Content-Type": "application/json" },
+        }).then(response => response.json())
+        .then(data => this.setState({ totalReactPackages: data.total }));
     }
 
     return ( 
