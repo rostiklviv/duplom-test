@@ -1,3 +1,6 @@
+import LeftBar from "../components/LeftBar";
+import MiddleBar from "../components/MiddleBar";
+import './Home.css'
 
 const Home = () => {
 
@@ -8,8 +11,8 @@ const Home = () => {
     }
 
     return ( 
-        <div className="home" onClick={handleClick}>
-            get request
+        <div className="home">
+            <MiddleBar />
         </div>
      );
 }

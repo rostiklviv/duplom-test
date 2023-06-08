@@ -1,15 +1,17 @@
-import { Route, Routes } from 'react-router-dom';
 import './App.css';
-import Login from './pages/Login';
-import Home from './pages/Home';
+import { createContext, useState } from 'react'
+import Router from './components/Router'
+import { UserContext } from './components/UserContext'
 
 function App() {
-  
+  const [user, setUser] = useState({ user: null })
+
   return (
-    <Routes>
-      <Route path='/' element={<Home />} />
-      <Route path='/login' element={<Login />} />
-    </Routes>
+    <UserContext.Provider value={{ user, setUser }}>
+        <div className="App">
+          <Router />
+        </div>
+    </UserContext.Provider>
   );
 }
 
