@@ -1,5 +1,5 @@
 import { ListItem, IconButton, ListItemAvatar, ListItemText, Avatar } from "@mui/material";
-import { Delete, Folder } from '@mui/icons-material'
+import { Delete } from '@mui/icons-material'
 import { useState } from "react";
 
 
