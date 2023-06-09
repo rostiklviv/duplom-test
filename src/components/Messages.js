@@ -7,11 +7,11 @@ let lastDate = ""
 
 const Messages = ({ messages, isLoading, setNextPage }) => {
 
-
     return (
         <>
             {(messages.results !== undefined) ? <> {messages.results.map(message => {
                 let anotherDay = false;
+                
                 if (lastDate !== message.timestamp.substring(0, 10)) {
                     anotherDay = true;
                     lastDate = message.timestamp.substring(0, 10)
@@ -19,7 +19,7 @@ const Messages = ({ messages, isLoading, setNextPage }) => {
                 return (
                     <>
                         <Message message={message} />
-                        {anotherDay && <Divider>{message.timestamp.substring(0, 10)}</Divider>}
+                        {anotherDay && <Divider key={lastDate}>{message.timestamp.substring(0, 10)}</Divider>}
                     </>
                 )
             }

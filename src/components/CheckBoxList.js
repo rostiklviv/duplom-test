@@ -4,7 +4,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 import { getCookie } from "../utils";
 
-const CheckBoxList = ({ handleSpeedDialCancleAction }) => {
+const CheckBoxList = ({ handleSpeedDialCancleAction, loadChats }) => {
 
     const [checked, setChecked] = useState([]);
     const [users, setUsers] = useState([]);
@@ -30,6 +30,7 @@ const CheckBoxList = ({ handleSpeedDialCancleAction }) => {
             return res.json()
         }).then(data => {
             setUsers(data.results)
+            console.log(data.results)
         })
     }, [])
 
@@ -42,16 +43,20 @@ const CheckBoxList = ({ handleSpeedDialCancleAction }) => {
 
         const newChat = { users: userIds, name: `Group ${Date.now()}`, type: 'group', creator: getCookie("user_id") }
 
+        var csrftoken = getCookie('csrftoken');
+
         fetch('http://localhost:8000/api/chats', {
             credentials: 'include',
             method: 'POST',
             body: JSON.stringify(newChat),
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
             },
         })
 
+        loadChats()
         handleSpeedDialCancleAction()
     }
 

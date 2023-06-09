@@ -6,8 +6,9 @@ import MiddleBar from './MiddleBar';
 import AuthProvider from './AuthProvider';
 import LeftBar from './LeftBar';
 import PrivateRoute from './PrivateRoute';
+import LoginSuccessHandler from './LoginSuccessHandler';
 
-const Router = () => {
+const Router = () => { 
     return (
         <>
             <PrivateRoute skipRedirect>
@@ -26,6 +27,10 @@ const Router = () => {
                     <PrivateRoute>
                         <MiddleBar />
                     </PrivateRoute>
+                } />
+
+                <Route path='/login/success/' element={
+                    <LoginSuccessHandler />
                 } />
 
             </Routes>

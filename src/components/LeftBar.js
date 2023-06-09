@@ -1,19 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Avatar, List, Box, SpeedDial, SpeedDialIcon, SpeedDialAction, Drawer, IconButton } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import GroupIcon from '@mui/icons-material/Group';
+import SchoolIcon from '@mui/icons-material/School';
 import './LeftBar.css'
 import ChatItem from './ChatItem';
 import CheckBoxList from './CheckBoxList';
 import { getCookie } from '../utils'
-
+import { UserContext } from './UserContext'
+import UserSearch from './UserSearch';
 
 const LeftBar = () => {
     const [chats, setChats] = useState([])
-    const [currentUser, setCurrentUser] = useState([])
     const [speedDialOpen, setSpeedDialOpen] = useState(false)
     const [selectMenuOpen, setSelectMenuOpen] = useState(false)
     const [drawerOpen, setDrawerOpen] = useState(true)
+    const [searchMenuOpen, setSearchMenuOpen] = useState(false)
+    const { user } = useContext(UserContext)
 
     const handleSpeedDialState = () => speedDialOpen ? setSpeedDialOpen(false) : setSpeedDialOpen(true);
     const handleSpeedDialClose = () => setSpeedDialOpen(false);
@@ -23,6 +26,10 @@ const LeftBar = () => {
     const drawerWidth = "20%"
 
     useEffect(() => {
+        loadChats()
+    }, [getCookie("user_id")])
+
+    function loadChats() {
         fetch('http://localhost:8000/api/chats', {
             credentials: 'include'
         }).then(res => {
@@ -31,15 +38,7 @@ const LeftBar = () => {
             data.results.sort((a, b) => a?.last_message?.timestamp - b?.last_message?.timestamp)
             setChats(data.results)
         })
-
-        fetch('http://localhost:8000/api/users/' + getCookie("user_id"), {
-            credentials: 'include'
-        }).then(res => {
-            return res.json()
-        }).then(data => {
-            setCurrentUser(data)
-        })
-    }, [getCookie("user_id")])
+    }
 
     const Chats = () => (
         <>
@@ -50,22 +49,28 @@ const LeftBar = () => {
     );
 
     const selectCreate = [
-        { icon: <PersonIcon />, name: 'Personal chat' },
-        { icon: <GroupIcon />, name: 'Group chat', action: handleSpeedDialSelectAction },
+        { icon: <PersonIcon />, name: 'Приватний чат', action: handleSpeedDialSelectPersonalChat },
+        { icon: <GroupIcon />, name: 'Груповий чат', action: handleSpeedDialSelectGroupChat },
+        { icon: <SchoolIcon />, name: 'Дипломний чат'}
     ];
 
 
-    function handleSpeedDialSelectAction() {
+    function handleSpeedDialSelectPersonalChat() {
+        setSearchMenuOpen(true)
+        handleSpeedDialClose()
+    }
+    function handleSpeedDialSelectGroupChat() {
         setSelectMenuOpen(true)
         handleSpeedDialClose()
     }
 
     function handleSpeedDialCancleAction() {
         setSelectMenuOpen(false)
+        setSearchMenuOpen(false)
         handleSpeedDialClose()
     }
 
-    if (getCookie("user_id") !== null) return (
+    if (user.id) return (
         <Drawer
             sx={{
                 width: drawerWidth,
@@ -80,12 +85,12 @@ const LeftBar = () => {
             open={drawerOpen}
         >
             <div className="topBar">
-                <h3 style={{ overflowWrap: "break-word", maxWidth: "50%" }}>{currentUser?.first_name} {currentUser?.last_name}</h3>
-                <Avatar sx={{ width: 56, height: 56 }} />
+                <h3 style={{ overflowWrap: "break-word", maxWidth: "50%" }}>{user?.first_name} {user?.last_name}</h3>
+                <Avatar sx={{ width: 56, height: 56 }} src={user?.profile?.photo} />
             </div>
-            {selectMenuOpen && getCookie("user_id") !== null ?
-                <CheckBoxList handleSpeedDialCancleAction={handleSpeedDialCancleAction} />
-                :
+            {searchMenuOpen && <UserSearch handleSpeedDialCancleAction={handleSpeedDialCancleAction} />}
+            {selectMenuOpen && <CheckBoxList handleSpeedDialCancleAction={handleSpeedDialCancleAction} loadChats={loadChats}/>}
+            {(!selectMenuOpen && !searchMenuOpen) &&
                 <>
                     <List style={{ width: "100%", height: "88%", overflowY: "auto" }}>
                         <Chats />

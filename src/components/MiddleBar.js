@@ -4,6 +4,7 @@ import { IconButton, InputBase, Paper } from '@mui/material';
 import Messages from './Messages';
 import PersonIcon from '@mui/icons-material/Person';
 import SendIcon from '@mui/icons-material/Send';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { useParams } from 'react-router-dom'
 import { getCookie } from '../utils'
 import ChatSettings from './ChatSettings';
@@ -19,6 +20,7 @@ const MiddleBar = () => {
     const [page, setPage] = useState(1);
     const [chat, setChat] = useState();
     const [newMessage, setNewMessage] = useState('')
+    const [linkedListItems, setLinkedListItems] = useState([])
 
     const handleDrawerClose = () => {
         setOpen(false);
@@ -34,9 +36,15 @@ const MiddleBar = () => {
 
     useWebSocket(WS_URL, {
         onOpen: () => {
-          console.log('WebSocket connection established.');
+            console.log('WebSocket connection established.');
+        },
+        onMessage: (ev) => {
+            setMessages(prev => {
+                prev = { ...prev, results: [JSON.parse(ev.data).message, ...(prev.results || [])] }
+                return prev
+            })
         }
-      });
+    });
 
     function loadChatMessages(id, isLoadingMore) {
         setIsLoading(true)
@@ -48,7 +56,7 @@ const MiddleBar = () => {
             setMessages(prev => {
 
                 if (isLoadingMore) {
-                    prev = { ...prev, results: [...(prev.results || []), ...(data.results || [])] }
+                    prev = { ...prev, results: [...(prev.results || []), ...(data.results || [])], next: data.next }
                 } else {
                     prev = data
                 }
@@ -72,40 +80,77 @@ const MiddleBar = () => {
         })
     }
 
-    function setNextPage() {
-        const nextPage = page + 1
-        console.log(nextPage)
-        setPage(page)
-        loadChatMessages(id, true)
+    function getLinkedItems() {
+        fetch('http://localhost:8000/api/messages?chat_id=' + id + '&page=' + page + '&pinned=1', {
+            credentials: 'include'
+        }).then(res => {
+            return res.json()
+        }).then((data) => {
+            setLinkedListItems(data.results)
+        })
     }
 
-    function sendMessage() {
+    useEffect(() => {
+        loadChatMessages(id, true)
+        getLinkedItems()
+    }, [page])
 
-        const chatNewMessage = { text: {newMessage} }
+    function setNextPage() {
+        setPage(prev => prev + 1)
+    }
 
-        fetch('http://localhost:8000/api/messages', {
+    function sendMessage(e) {
+        e.preventDefault()
+        const chatNewMessage = { chat_id: id, text: newMessage.trim() }
+
+        var csrftoken = getCookie('csrftoken');
+
+        fetch('http://localhost:8000/api/messages/', {
             credentials: 'include',
             method: 'POST',
             body: JSON.stringify(chatNewMessage),
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
             },
-        })
+        }).finally(() => setNewMessage(''))
 
-        console.log(newMessage)
+
+
     }
-
-
 
     useEffect(() => {
         loadChatInfo(id)
         loadChatMessages(id)
+        setPage(1)
     }, [id])
 
     const onChange = (event) => {
+        event.preventDefault();
         setNewMessage(event.target.value)
     }
+
+    const handleFileUpload = (event) => {
+        console.log(event.target.files[0].name);
+
+        const formData = new FormData();
+        formData.append('chat_id', id)
+		formData.append('file', event.target.files[0]);
+
+        var csrftoken = getCookie('csrftoken');
+
+        fetch('http://localhost:8000/api/messages', {
+            credentials: 'include',
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+        })
+
+      };
 
 
     if (getCookie("user_id") !== null) return (
@@ -122,19 +167,28 @@ const MiddleBar = () => {
                 <Paper
                     className="sendForm"
                     component="form"
+                    onSubmit={(e) => e.preventDefault()}
                     sx={{ display: 'flex', alignItems: 'center', width: "100%", height: "8%" }}
                 >
                     <InputBase
                         sx={{ ml: 2, flex: 1 }}
                         placeholder="Type something..."
+                        value={newMessage}
                         onChange={onChange}
                     />
+                    <input id="icon-button-file"
+                        type="file" style={{ display: 'none' }} onChange={handleFileUpload} />
+                    <label htmlFor='icon-button-file'>
+                        <IconButton type="button" sx={{ p: '10px' }} aria-label="file" component="span">
+                            <AttachFileIcon />
+                        </IconButton>
+                    </label>
                     <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={sendMessage}>
                         <SendIcon />
                     </IconButton>
                 </Paper>
             </div>
-            <ChatSettings handleDrawerClose={handleDrawerClose} open={open} chat={chat}/>
+            <ChatSettings handleDrawerClose={handleDrawerClose} open={open} chat={chat} chatId={id} linkedListItems={linkedListItems} />
         </div>
     );
 }
