@@ -28,9 +28,7 @@ const LeftBar = () => {
     const handleSpeedDialState = () => speedDialOpen ? setSpeedDialOpen(false) : setSpeedDialOpen(true);
     const handleSpeedDialClose = () => setSpeedDialOpen(false);
 
-    const handleDrawerState = () => drawerOpen ? setDrawerOpen(false) : setDrawerOpen(true);
-
-    console.log(UserContext)
+    const handleDrawerState = () => drawerOpen ? setDrawerOpen(false) : setDrawerOpen(true);    
 
     const drawerWidth = "20%"
 
@@ -141,7 +139,8 @@ const LeftBar = () => {
         >
             <div className="topBar" onClick={(handleProfileEditOpen)}>
                 <h3 style={{ overflowWrap: "break-word", maxWidth: "50%" }}>{user?.first_name} {user?.last_name}</h3>
-                <Avatar sx={{ width: 56, height: 56 }} src={typeof user.profile.photo !== 'string' ? URL.createObjectURL(user.profile.photo) : REACT_APP_BASE_BACKEND_URL + user.profile.photo} />
+                <Avatar sx={{ width: 56, height: 56 }} src={user.profile.photo !== null ? typeof user.profile.photo !== 'string' ? URL.createObjectURL(user.profile.photo) :
+                 REACT_APP_BASE_BACKEND_URL + user.profile.photo : "/broken-image.jpg"  } />
             </div>
             {searchMenuOpen && <UserSearch handleSpeedDialCancleAction={handleSpeedDialCancleAction} user={user} setDataChanged={setDataChanged}/>}
             {selectMenuOpen && <CheckBoxList handleCloseAction={handleSpeedDialCancleAction} setDataChanged={setDataChanged} />}
