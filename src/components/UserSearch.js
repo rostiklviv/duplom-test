@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { alpha, styled, List, ListItem, ListItemButton, ListItemAvatar, Avatar, InputBase, ListItemText, Box, IconButton } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
+import { getCookie } from '../utils'
 
 
-const UserSearch = ({handleSpeedDialCancleAction}) => {
+const UserSearch = ({ handleSpeedDialCancleAction, user, setDataChanged }) => {
 
   const [users, setUsers] = useState([])
   const [searchValue, setSearchValue] = useState('')
@@ -79,31 +80,40 @@ const UserSearch = ({handleSpeedDialCancleAction}) => {
     setSearchValue(event.target.value)
   }
 
-  const createPrivateChat = (event) => {
-    const userId = event.target
+  const createPrivateChat = (userId) => {
 
+    const usersIds = [user.id, userId]
     console.log(userId)
-    // const newChat = { users: userIds, name: `Group ${Date.now()}`, type: 'group', creator: getCookie("user_id") }
+    const newChat = { users: usersIds, type: 'private', name: (user.id + ' ' + userId) }
 
-    // var csrftoken = getCookie('csrftoken');
+    fetch('http://localhost:8000/api/chats/private_chat_exists?user_id=' + userId, {
+      credentials: 'include',
+    }).then(res => {
+      return res.json()
+    }).then((data) => {
+      if (!data.exists) {
+        var csrftoken = getCookie('csrftoken');
 
-    // fetch('http://localhost:8000/api/chats', {
-    //     credentials: 'include',
-    //     method: 'POST',
-    //     body: JSON.stringify(newChat),
-    //     headers: {
-    //         'Accept': 'application/json',
-    //         'Content-Type': 'application/json',
-    //         'X-CSRFToken': csrftoken
-    //     },
-    // })
+        fetch('http://localhost:8000/api/chats', {
+          credentials: 'include',
+          method: 'POST',
+          body: JSON.stringify(newChat),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+          },
+        })
+      }
+    })
 
-    // loadChats()
-    // handleSpeedDialCancleAction()
+
+    setDataChanged(true)
+    handleSpeedDialCancleAction()
   }
 
 
-  
+
   return (
     <>
       <Search>
@@ -125,9 +135,9 @@ const UserSearch = ({handleSpeedDialCancleAction}) => {
             <ListItem
               key={value.id}
               disablePadding
-              onTouchTap={() => this._handleTouchTap(value.id)}
+              onClick={() => { createPrivateChat(value.id) }}
             >
-              <ListItemButton onClick={createPrivateChat}>
+              <ListItemButton>
                 <ListItemAvatar>
                   <Avatar
                     src={value.profile.photo}

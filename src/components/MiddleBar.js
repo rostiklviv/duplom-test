@@ -80,7 +80,7 @@ const MiddleBar = () => {
         })
     }
 
-    function getLinkedItems() {
+    function getLinkedItems(id) {
         fetch('http://localhost:8000/api/messages?chat_id=' + id + '&page=' + page + '&pinned=1', {
             credentials: 'include'
         }).then(res => {
@@ -92,7 +92,6 @@ const MiddleBar = () => {
 
     useEffect(() => {
         loadChatMessages(id, true)
-        getLinkedItems()
     }, [page])
 
     function setNextPage() {
@@ -105,7 +104,7 @@ const MiddleBar = () => {
 
         var csrftoken = getCookie('csrftoken');
 
-        fetch('http://localhost:8000/api/messages/', {
+        fetch('http://localhost:8000/api/messages', {
             credentials: 'include',
             method: 'POST',
             body: JSON.stringify(chatNewMessage),
@@ -115,14 +114,12 @@ const MiddleBar = () => {
                 'X-CSRFToken': csrftoken
             },
         }).finally(() => setNewMessage(''))
-
-
-
     }
 
     useEffect(() => {
         loadChatInfo(id)
         loadChatMessages(id)
+        getLinkedItems(id)
         setPage(1)
     }, [id])
 
@@ -136,7 +133,7 @@ const MiddleBar = () => {
 
         const formData = new FormData();
         formData.append('chat_id', id)
-		formData.append('file', event.target.files[0]);
+        formData.append('file', event.target.files[0]);
 
         var csrftoken = getCookie('csrftoken');
 
@@ -150,15 +147,20 @@ const MiddleBar = () => {
             },
         })
 
-      };
+    };
 
 
     if (getCookie("user_id") !== null) return (
         <div className="middleBar">
             <div className="topBar" onClick={handleDrawerOpen} style={{ cursor: 'pointer' }}>
-                <h2>{chat?.name || "Undefined"}</h2>
-                <div style={{ display: "flex" }}><PersonIcon /> {chat?.users.length || "0"} </div>
-                {isLoading && 'loading'}
+
+                <>
+                    <h2>{chat?.type !== "private" ? chat?.name : getCookie('user_id') == chat?.users[0].id ?
+                        chat?.users[1].first_name + " " + chat?.users[1].last_name
+                        : chat?.users[0].first_name + " " + chat?.users[0].last_name || "Undefined"}</h2>
+                    <div style={{ display: "flex" }}><PersonIcon /> {chat?.users.length || "0"} </div>
+                    {isLoading && 'loading'}
+                </>
             </div>
             <div className="chat">
                 <div className="messages">
@@ -167,7 +169,7 @@ const MiddleBar = () => {
                 <Paper
                     className="sendForm"
                     component="form"
-                    onSubmit={(e) => e.preventDefault()}
+                    onSubmit={sendMessage}
                     sx={{ display: 'flex', alignItems: 'center', width: "100%", height: "8%" }}
                 >
                     <InputBase

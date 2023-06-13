@@ -4,7 +4,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 import { getCookie } from "../utils";
 
-const CheckBoxList = ({ handleSpeedDialCancleAction, loadChats }) => {
+const CheckBoxList = ({ handleCloseAction, isAddMoreUsers = false, chatId = -1, setDataChanged }) => {
 
     const [checked, setChecked] = useState([]);
     const [users, setUsers] = useState([]);
@@ -56,8 +56,32 @@ const CheckBoxList = ({ handleSpeedDialCancleAction, loadChats }) => {
             },
         })
 
-        loadChats()
-        handleSpeedDialCancleAction()
+        setDataChanged()
+        handleCloseAction()
+    }
+
+    function addUser() {
+        
+        const userIds = checked.map((el) => el.id)
+
+        if (userIds.length === 0) return;
+
+        const newUsers = { users: userIds}
+
+        var csrftoken = getCookie('csrftoken');
+
+        fetch('http://localhost:8000/api/chats/' + chatId + '/add_users', {
+            credentials: 'include',
+            method: 'POST',
+            body: JSON.stringify(newUsers),
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+        })
+
+        handleCloseAction()
     }
 
     return (
@@ -92,10 +116,10 @@ const CheckBoxList = ({ handleSpeedDialCancleAction, loadChats }) => {
                 })}
             </List>
             <Box sx={{ transform: 'translateZ(0px)', flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
-                <IconButton size='large' onClick={handleSpeedDialCancleAction}>
+                <IconButton size='large' onClick={handleCloseAction}>
                     <ClearIcon color='error' sx={{ fontSize: 50 }} />
                 </IconButton>
-                <IconButton onClick={createGroupChat}>
+                <IconButton onClick={isAddMoreUsers ? addUser : createGroupChat}>
                     <CheckIcon color='success' sx={{ fontSize: 50 }} />
                 </IconButton>
             </Box>

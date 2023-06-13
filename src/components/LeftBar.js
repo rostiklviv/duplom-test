@@ -9,6 +9,10 @@ import CheckBoxList from './CheckBoxList';
 import { getCookie } from '../utils'
 import { UserContext } from './UserContext'
 import UserSearch from './UserSearch';
+import EditUser from './EditUser';
+import DiplomaChatJoin from './DiplomaChatJoin';
+
+const { REACT_APP_BASE_BACKEND_URL } = process.env;
 
 const LeftBar = () => {
     const [chats, setChats] = useState([])
@@ -16,6 +20,9 @@ const LeftBar = () => {
     const [selectMenuOpen, setSelectMenuOpen] = useState(false)
     const [drawerOpen, setDrawerOpen] = useState(true)
     const [searchMenuOpen, setSearchMenuOpen] = useState(false)
+    const [profileEditOpen, setProfileEditOpen] = useState(false)
+    const [diplomaChatMenuOpen, setDiplomaChatMenuOpen] = useState(false)
+    const [dataChanged, setDataChanged] = useState(false)
     const { user } = useContext(UserContext)
 
     const handleSpeedDialState = () => speedDialOpen ? setSpeedDialOpen(false) : setSpeedDialOpen(true);
@@ -23,11 +30,23 @@ const LeftBar = () => {
 
     const handleDrawerState = () => drawerOpen ? setDrawerOpen(false) : setDrawerOpen(true);
 
+    console.log(UserContext)
+
     const drawerWidth = "20%"
 
     useEffect(() => {
-        loadChats()
+        const interval = setInterval(() => {
+            loadChats()
+        }, 5000);
+        return () => clearInterval(interval);
+
     }, [getCookie("user_id")])
+
+    useEffect(() => {
+        loadChats()
+        // loadUser()
+        setDataChanged(false)
+    }, [dataChanged])
 
     function loadChats() {
         fetch('http://localhost:8000/api/chats', {
@@ -35,10 +54,31 @@ const LeftBar = () => {
         }).then(res => {
             return res.json()
         }).then(data => {
-            data.results.sort((a, b) => a?.last_message?.timestamp - b?.last_message?.timestamp)
-            setChats(data.results)
+            setChats(data.results.sort(function (a, b) {
+                if (a.last_message === b.last_message) {
+                    return 0;
+                }
+            
+                if (a.last_message === null) {
+                    return 1;
+                }
+                if (b.last_message === null) {
+                    return -1;
+                }
+            
+                return a.last_message.timestamp < b.last_message.timestamp ? 1 : -1;
+            }))
         })
     }
+
+    // function loadUser() {
+    //     fetch('http://localhost:8000/api/users/' + user.id, {
+    //         credentials: 'include'
+    //     }).then(res => {
+    //         return res.json()
+    //     }).then(data => {
+    //     })
+    // }
 
     const Chats = () => (
         <>
@@ -51,7 +91,7 @@ const LeftBar = () => {
     const selectCreate = [
         { icon: <PersonIcon />, name: 'Приватний чат', action: handleSpeedDialSelectPersonalChat },
         { icon: <GroupIcon />, name: 'Груповий чат', action: handleSpeedDialSelectGroupChat },
-        { icon: <SchoolIcon />, name: 'Дипломний чат'}
+        { icon: <SchoolIcon />, name: 'Дипломний чат', action: handleDiplomaChatMenuOpen }
     ];
 
 
@@ -70,6 +110,21 @@ const LeftBar = () => {
         handleSpeedDialClose()
     }
 
+    const handleProfileEditOpen = () => {
+        setProfileEditOpen(true)
+    }
+    const handleProfileEditClose = () => {
+        setProfileEditOpen(false)
+    }
+
+    function handleDiplomaChatMenuOpen() {
+        user.profile?.diploma && setDiplomaChatMenuOpen(true)
+    }
+
+    const handleDiplomaChatMenuClose = () => {
+        setDiplomaChatMenuOpen(false)
+    }
+
     if (user.id) return (
         <Drawer
             sx={{
@@ -84,12 +139,12 @@ const LeftBar = () => {
             anchor="left"
             open={drawerOpen}
         >
-            <div className="topBar">
+            <div className="topBar" onClick={(handleProfileEditOpen)}>
                 <h3 style={{ overflowWrap: "break-word", maxWidth: "50%" }}>{user?.first_name} {user?.last_name}</h3>
-                <Avatar sx={{ width: 56, height: 56 }} src={user?.profile?.photo} />
+                <Avatar sx={{ width: 56, height: 56 }} src={typeof user.profile.photo !== 'string' ? URL.createObjectURL(user.profile.photo) : REACT_APP_BASE_BACKEND_URL + user.profile.photo} />
             </div>
-            {searchMenuOpen && <UserSearch handleSpeedDialCancleAction={handleSpeedDialCancleAction} />}
-            {selectMenuOpen && <CheckBoxList handleSpeedDialCancleAction={handleSpeedDialCancleAction} loadChats={loadChats}/>}
+            {searchMenuOpen && <UserSearch handleSpeedDialCancleAction={handleSpeedDialCancleAction} user={user} setDataChanged={setDataChanged}/>}
+            {selectMenuOpen && <CheckBoxList handleCloseAction={handleSpeedDialCancleAction} setDataChanged={setDataChanged} />}
             {(!selectMenuOpen && !searchMenuOpen) &&
                 <>
                     <List style={{ width: "100%", height: "88%", overflowY: "auto" }}>
@@ -116,6 +171,8 @@ const LeftBar = () => {
                         </SpeedDial>
                     </Box>
                 </>}
+            <EditUser open={profileEditOpen} handleClose={handleProfileEditClose} user={user} />
+            <DiplomaChatJoin open={diplomaChatMenuOpen} handleClose={handleDiplomaChatMenuClose} setDataChanged={setDataChanged} />
         </Drawer>
     );
 }

@@ -49,3 +49,7 @@
 .messageUser p{
     background-color: rgba(0,0,0,0.06);
 }
+
+.messageOwner p a{
+    color: #fff;
+}
