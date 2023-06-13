@@ -64,8 +64,6 @@ const Message = ({ message }) => {
         }
     }
 
-    console.log(user.profile.photo)
-
     return (
         <div className={userId == message.user.id ? "messageOwner" : "messageUser"} key={message.number}>
             <div className="messageInfo">
