@@ -8,6 +8,7 @@ const CheckBoxList = ({ handleCloseAction, isAddMoreUsers = false, chatId = -1, 
 
     const [checked, setChecked] = useState([]);
     const [users, setUsers] = useState([]);
+    const [page, setPage] = useState(1);
 
     const handleToggle = (value) => () => {
         console.log(value, checked)
@@ -24,15 +25,14 @@ const CheckBoxList = ({ handleCloseAction, isAddMoreUsers = false, chatId = -1, 
     };
 
     useEffect(() => {
-        fetch('http://localhost:8000/api/users?page=1', {
+        fetch('http://localhost:8000/api/users?page=' + page, {
             credentials: 'include'
         }).then(res => {
             return res.json()
         }).then(data => {
             setUsers(data.results)
-            console.log(data.results)
         })
-    }, [])
+    }, [page])
 
 
     function createGroupChat() {

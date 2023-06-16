@@ -115,7 +115,7 @@ const UserSearch = ({ handleSpeedDialCancleAction, user, setDataChanged }) => {
 
 
   return (
-    <>
+    <div style={{ width: "95vw", maxWidth: '500px', }}>
       <Search>
         <SearchIconWrapper>
           <SearchIcon />
@@ -128,7 +128,7 @@ const UserSearch = ({ handleSpeedDialCancleAction, user, setDataChanged }) => {
           onChange={onChange}
         />
       </Search>
-      <List dense sx={{ width: '100%', height: "88%", overflowY: "auto" }}>
+      <List dense sx={{ width: '100%', height: "88%", overflowY: "hidden" }}>
         {users.map((value) => {
           const labelId = `user-${value.id}`;
           return (
@@ -154,7 +154,7 @@ const UserSearch = ({ handleSpeedDialCancleAction, user, setDataChanged }) => {
           <ClearIcon color='error' sx={{ fontSize: 50 }} />
         </IconButton>
       </Box>
-    </>
+    </div>
   );
 }
 

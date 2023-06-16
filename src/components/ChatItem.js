@@ -3,7 +3,7 @@ import { Avatar, ListItem, ListItemAvatar, ListItemButton, ListItemText, Typogra
 import { useNavigate } from 'react-router-dom'
 import { getCookie } from '../utils';
 
-const Chat = ({ chat }) => {
+const Chat = ({ chat, setLeftBarOpen, isTablet }) => {
     const otherUserId = (getCookie('user_id') == chat.users[0].id) ? 1 : 0 
     const chatName = (chat.type !== "private") ? chat.name : chat.users[otherUserId].first_name + " " + chat.users[otherUserId].last_name 
     const user = (chat.last_message !== null) ? chat.last_message.user.first_name : ""
@@ -21,7 +21,7 @@ const Chat = ({ chat }) => {
 
     return (
         <ListItem alignItems='flex-start' sx={{ paddingTop: "0px", paddingBottom: "0px" }}>
-            <ListItemButton onClick={() => navigate(`/room/${chat.id}`)}>
+            <ListItemButton onClick={() =>{navigate(`/room/${chat.id}`); !isTablet && setLeftBarOpen(false)}}>
                 <ListItemAvatar>
                     <Avatar src={imageSource} />
                 </ListItemAvatar>

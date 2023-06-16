@@ -4,8 +4,11 @@ import Button from '@mui/material/Button';
 
 export default function ImageMessage({ message }) {
     const url = message.file || message.text
+    const videoRef = React.createRef()
     const [open, setOpen] = React.useState(false);
     const handleClose = () => {
+        console.log(videoRef.current)
+        videoRef.current.pause()
         setOpen(false);
     };
     const handleOpen = () => {
@@ -17,7 +20,7 @@ export default function ImageMessage({ message }) {
     return (
         <div>
             <Button onClick={handleOpen} className='imageContainer'>
-                {url.includes('.mp4') ? <video src={url} loading="lazy" width='250px' height='auto' style={{ objectFit: 'contain' }}>
+                {url.includes('.mp4') ? <video ref={videoRef} src={url} loading="lazy" width='250px' height='auto' style={{ objectFit: 'contain' }}>
                 </video> :
                     <img src={url} loading="lazy" width='250px' height='auto' style={{ objectFit: 'contain' }} />}
             </Button>
@@ -26,7 +29,7 @@ export default function ImageMessage({ message }) {
                 open={open}
                 onClick={handleClose}
             >
-                {url.includes('.mp4') ? <video loading="lazy" width='250px' height='auto' style={{ objectFit: 'contain' }} controls autoPlay >
+                {url.includes('.mp4') ? <video loading="lazy" width='250px' height='auto' style={{ objectFit: 'contain' }} controls  >
 
                     <source src={url} type="video/mp4" /> Video is not supported
                 </video> :

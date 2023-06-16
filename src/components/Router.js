@@ -7,25 +7,28 @@ import AuthProvider from './AuthProvider';
 import LeftBar from './LeftBar';
 import PrivateRoute from './PrivateRoute';
 import LoginSuccessHandler from './LoginSuccessHandler';
+import { useState } from 'react';
 
-const Router = () => { 
+const Router = () => {
+    const [leftBarOpen, setLeftBarOpen] = useState(true)
+
     return (
         <>
             <PrivateRoute skipRedirect>
-                <LeftBar />
+                <LeftBar leftBarOpen={leftBarOpen}  setLeftBarOpen={setLeftBarOpen} />
             </PrivateRoute>
             <Routes>
                 <Route path='/login' element={<Login />} />
 
                 <Route exact path='/' element={
                     <PrivateRoute>
-                        <DefaultPage />
+                        <DefaultPage setLeftBarOpen={setLeftBarOpen} />
                     </PrivateRoute>
                 } />
 
                 <Route path='/room/:id' element={
                     <PrivateRoute>
-                        <MiddleBar />
+                        <MiddleBar setLeftBarOpen={setLeftBarOpen}  />
                     </PrivateRoute>
                 } />
 

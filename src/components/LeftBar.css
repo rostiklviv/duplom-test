@@ -15,11 +15,12 @@
     flex-wrap: wrap;
     align-items: center;
     cursor: pointer;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 
 
 }
 
-.MuiSpeedDialAction-staticTooltipLabel{
+.MuiSpeedDialAction-staticTooltipLabel {
     text-align: center;
     width: 120px;
 }

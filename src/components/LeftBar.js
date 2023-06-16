@@ -11,26 +11,30 @@ import { UserContext } from './UserContext'
 import UserSearch from './UserSearch';
 import EditUser from './EditUser';
 import DiplomaChatJoin from './DiplomaChatJoin';
+import { useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import CloseIcon from '@mui/icons-material/Close';
 
 const { REACT_APP_BASE_BACKEND_URL } = process.env;
 
-const LeftBar = () => {
+const LeftBar = ({ leftBarOpen, setLeftBarOpen}) => {
     const [chats, setChats] = useState([])
     const [speedDialOpen, setSpeedDialOpen] = useState(false)
     const [selectMenuOpen, setSelectMenuOpen] = useState(false)
-    const [drawerOpen, setDrawerOpen] = useState(true)
     const [searchMenuOpen, setSearchMenuOpen] = useState(false)
     const [profileEditOpen, setProfileEditOpen] = useState(false)
     const [diplomaChatMenuOpen, setDiplomaChatMenuOpen] = useState(false)
     const [dataChanged, setDataChanged] = useState(false)
     const { user } = useContext(UserContext)
+    const theme = useTheme();
+    const isTablet = useMediaQuery(theme.breakpoints.up('sm'));
 
     const handleSpeedDialState = () => speedDialOpen ? setSpeedDialOpen(false) : setSpeedDialOpen(true);
     const handleSpeedDialClose = () => setSpeedDialOpen(false);
 
-    const handleDrawerState = () => drawerOpen ? setDrawerOpen(false) : setDrawerOpen(true);    
+    const handleDrawerState = () => leftBarOpen ? setLeftBarOpen(false) : setLeftBarOpen(true);
 
-    const drawerWidth = "20%"
+    const drawerWidth = "400px"
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -56,14 +60,14 @@ const LeftBar = () => {
                 if (a.last_message === b.last_message) {
                     return 0;
                 }
-            
+
                 if (a.last_message === null) {
                     return 1;
                 }
                 if (b.last_message === null) {
                     return -1;
                 }
-            
+
                 return a.last_message.timestamp < b.last_message.timestamp ? 1 : -1;
             }))
         })
@@ -78,10 +82,10 @@ const LeftBar = () => {
     //     })
     // }
 
-    const Chats = () => (
+    const Chats = ({setLeftBarOpen,isTablet}) => (
         <>
             {chats.map(chat => (
-                <ChatItem key={chat.id} chat={chat} />
+                <ChatItem key={chat.id} chat={chat} isTablet={isTablet} setLeftBarOpen={setLeftBarOpen} />
             ))}
         </>
     );
@@ -116,7 +120,7 @@ const LeftBar = () => {
     }
 
     function handleDiplomaChatMenuOpen() {
-        user.profile?.diploma && setDiplomaChatMenuOpen(true)
+        user.profile.diploma === null && setDiplomaChatMenuOpen(true)
     }
 
     const handleDiplomaChatMenuClose = () => {
@@ -126,28 +130,35 @@ const LeftBar = () => {
     if (user.id) return (
         <Drawer
             sx={{
-                width: drawerWidth,
-                flexShrink: 0,
+                width: leftBarOpen ? (isTablet ? drawerWidth : '100vw') : 0,
                 '& .MuiDrawer-paper': {
-                    width: drawerWidth,
+                    width: leftBarOpen ? (isTablet ? drawerWidth : '100vw') : 0,
                     boxSizing: 'border-box',
                 },
+
             }}
             variant="persistent"
             anchor="left"
-            open={drawerOpen}
+            open={leftBarOpen}
         >
-            <div className="topBar" onClick={(handleProfileEditOpen)}>
-                <h3 style={{ overflowWrap: "break-word", maxWidth: "50%" }}>{user?.first_name} {user?.last_name}</h3>
-                <Avatar sx={{ width: 56, height: 56 }} src={user.profile.photo !== null ? typeof user.profile.photo !== 'string' ? URL.createObjectURL(user.profile.photo) :
-                 REACT_APP_BASE_BACKEND_URL + user.profile.photo : "/broken-image.jpg"  } />
+            <div className="topBar" >
+                <div style={{ display: 'flex', flexDirection: 'row', flex: 1, m: 10, justifyContent: 'space-around', alignItems:'center' }} onClick={(handleProfileEditOpen)}>
+                    <Avatar sx={{ width: 56, height: 56, mx:3 }} src={user.profile.photo !== null ? typeof user.profile.photo !== 'string' ? URL.createObjectURL(user.profile.photo) :
+                        REACT_APP_BASE_BACKEND_URL + user.profile.photo : "/broken-image.jpg"} />
+                    <h3 style={{ overflowWrap: "break-word", flex:1 }}>{user?.first_name} {user?.last_name}</h3>
+                </div>
+               { !isTablet &&
+                <IconButton onClick={handleDrawerState}>
+                    <CloseIcon />
+                </IconButton>}
+            
             </div>
-            {searchMenuOpen && <UserSearch handleSpeedDialCancleAction={handleSpeedDialCancleAction} user={user} setDataChanged={setDataChanged}/>}
+            {searchMenuOpen && <UserSearch handleSpeedDialCancleAction={handleSpeedDialCancleAction} user={user} setDataChanged={setDataChanged} />}
             {selectMenuOpen && <CheckBoxList handleCloseAction={handleSpeedDialCancleAction} setDataChanged={setDataChanged} />}
             {(!selectMenuOpen && !searchMenuOpen) &&
                 <>
                     <List style={{ width: "100%", height: "88%", overflowY: "auto" }}>
-                        <Chats />
+                        <Chats isTablet={isTablet} setLeftBarOpen={setLeftBarOpen} />
                     </List>
                     <Box sx={{ transform: 'translateZ(0px)', flexGrow: 1 }}>
                         <SpeedDial

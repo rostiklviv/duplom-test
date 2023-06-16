@@ -1,26 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import './MiddleBar.css'
-import { IconButton, InputBase, Paper } from '@mui/material';
+import { IconButton, InputBase, Paper, Badge } from '@mui/material';
 import Messages from './Messages';
 import PersonIcon from '@mui/icons-material/Person';
-import SendIcon from '@mui/icons-material/Send';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { useParams } from 'react-router-dom'
 import { getCookie } from '../utils'
 import ChatSettings from './ChatSettings';
+import SendMessageForm from './SendMessageForm';
 import { useWebSocket } from 'react-use-websocket/dist/lib/use-websocket';
+import { useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import MenuIcon from '@mui/icons-material/Menu';
+
 
 let lastDate = ""
 
-const MiddleBar = () => {
+const MiddleBar = ({ setLeftBarOpen }) => {
     const { id } = useParams();
     const [open, setOpen] = useState(false);
     const [inputMessage, setInputMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [chat, setChat] = useState();
-    const [newMessage, setNewMessage] = useState('')
     const [linkedListItems, setLinkedListItems] = useState([])
+    const theme = useTheme();
+    const isTablet = useMediaQuery(theme.breakpoints.up('sm'));
 
     const handleDrawerClose = () => {
         setOpen(false);
@@ -98,24 +102,6 @@ const MiddleBar = () => {
         setPage(prev => prev + 1)
     }
 
-    function sendMessage(e) {
-        e.preventDefault()
-        const chatNewMessage = { chat_id: id, text: newMessage.trim() }
-
-        var csrftoken = getCookie('csrftoken');
-
-        fetch('http://localhost:8000/api/messages', {
-            credentials: 'include',
-            method: 'POST',
-            body: JSON.stringify(chatNewMessage),
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken
-            },
-        }).finally(() => setNewMessage(''))
-    }
-
     useEffect(() => {
         loadChatInfo(id)
         loadChatMessages(id)
@@ -123,72 +109,34 @@ const MiddleBar = () => {
         setPage(1)
     }, [id])
 
-    const onChange = (event) => {
-        event.preventDefault();
-        setNewMessage(event.target.value)
-    }
-
-    const handleFileUpload = (event) => {
-        console.log(event.target.files[0].name);
-
-        const formData = new FormData();
-        formData.append('chat_id', id)
-        formData.append('file', event.target.files[0]);
-
-        var csrftoken = getCookie('csrftoken');
-
-        fetch('http://localhost:8000/api/messages', {
-            credentials: 'include',
-            method: 'POST',
-            body: formData,
-            headers: {
-                'Accept': 'application/json',
-                'X-CSRFToken': csrftoken
-            },
-        })
-
-    };
-
-
     if (getCookie("user_id") !== null) return (
-        <div className="middleBar">
-            <div className="topBar" onClick={handleDrawerOpen} style={{ cursor: 'pointer' }}>
-
-                <>
-                    <h2>{chat?.type !== "private" ? chat?.name : getCookie('user_id') == chat?.users[0].id ?
+        <div className="middleBar" style={{  width: "100vw", maxWidth: '100%',transition: 'margin-right .2s', marginRight: open ? '400px': 0 }}>
+            <div className="topBar"  >
+                {!isTablet && <div>
+                    <IconButton onClick={() => setLeftBarOpen(true)}>
+                        <MenuIcon />
+                    </IconButton>
+                </div>
+                }
+                <div onClick={handleDrawerOpen} style={{ display: 'flex', flexDirection: 'row', flex: 1, m: 10, justifyContent: 'space-around', alignItems: 'center' }}>
+                    <h4>{chat?.type !== "private" ? chat?.name : getCookie('user_id') == chat?.users[0].id ?
                         chat?.users[1].first_name + " " + chat?.users[1].last_name
-                        : chat?.users[0].first_name + " " + chat?.users[0].last_name || "Undefined"}</h2>
-                    <div style={{ display: "flex" }}><PersonIcon /> {chat?.users.length || "0"} </div>
+                        : chat?.users[0].first_name + " " + chat?.users[0].last_name || "Undefined"}</h4>
+                    <div style={{ display: "flex" }}>
+                        <IconButton end>
+                            <Badge badgeContent={chat?.users.length} color="primary">
+                                <PersonIcon />
+                            </Badge>
+                        </IconButton>
+                    </div>
                     {isLoading && 'loading'}
-                </>
+                </div>
             </div>
-            <div className="chat">
+            <div className="chat" >
                 <div className="messages">
                     <Messages messages={messages} isLoading={isLoading} setNextPage={setNextPage} />
                 </div>
-                <Paper
-                    className="sendForm"
-                    component="form"
-                    onSubmit={sendMessage}
-                    sx={{ display: 'flex', alignItems: 'center', width: "100%", height: "8%" }}
-                >
-                    <InputBase
-                        sx={{ ml: 2, flex: 1 }}
-                        placeholder="Type something..."
-                        value={newMessage}
-                        onChange={onChange}
-                    />
-                    <input id="icon-button-file"
-                        type="file" style={{ display: 'none' }} onChange={handleFileUpload} />
-                    <label htmlFor='icon-button-file'>
-                        <IconButton type="button" sx={{ p: '10px' }} aria-label="file" component="span">
-                            <AttachFileIcon />
-                        </IconButton>
-                    </label>
-                    <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={sendMessage}>
-                        <SendIcon />
-                    </IconButton>
-                </Paper>
+                <SendMessageForm id={id} />
             </div>
             <ChatSettings handleDrawerClose={handleDrawerClose} open={open} chat={chat} chatId={id} linkedListItems={linkedListItems} />
         </div>
