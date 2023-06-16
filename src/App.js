@@ -5,7 +5,7 @@ import { UserContext } from './components/UserContext'
 
 function App() {
   const [user, setUser] = useState({ user: null })
-
+  
   return (
     <UserContext.Provider value={{ user, setUser }}>
         <div className="App">
