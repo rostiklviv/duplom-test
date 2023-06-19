@@ -49,7 +49,7 @@ const EditUser = ({ open, handleClose, user }) => {
 
         var csrftoken = getCookie('csrftoken');
 
-        fetch('http://localhost:8000/api/users/' + user.id, {
+        fetch(REACT_APP_BASE_BACKEND_URL + '/api/users/' + user.id, {
             credentials: 'include',
             method: 'PATCH',
             body: formData,

@@ -4,6 +4,8 @@ import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 import { getCookie } from "../utils";
 
+const { REACT_APP_BASE_BACKEND_URL } = process.env;
+
 const CheckBoxList = ({ handleCloseAction, isAddMoreUsers = false, chatId = -1, setDataChanged }) => {
 
     const [checked, setChecked] = useState([]);
@@ -25,7 +27,7 @@ const CheckBoxList = ({ handleCloseAction, isAddMoreUsers = false, chatId = -1, 
     };
 
     useEffect(() => {
-        fetch('http://localhost:8000/api/users?page=' + page, {
+        fetch(REACT_APP_BASE_BACKEND_URL + '/api/users?page=' + page, {
             credentials: 'include'
         }).then(res => {
             return res.json()
@@ -45,7 +47,7 @@ const CheckBoxList = ({ handleCloseAction, isAddMoreUsers = false, chatId = -1, 
 
         var csrftoken = getCookie('csrftoken');
 
-        fetch('http://localhost:8000/api/chats', {
+        fetch(REACT_APP_BASE_BACKEND_URL + '/api/chats', {
             credentials: 'include',
             method: 'POST',
             body: JSON.stringify(newChat),
@@ -70,7 +72,7 @@ const CheckBoxList = ({ handleCloseAction, isAddMoreUsers = false, chatId = -1, 
 
         var csrftoken = getCookie('csrftoken');
 
-        fetch('http://localhost:8000/api/chats/' + chatId + '/add_users', {
+        fetch(REACT_APP_BASE_BACKEND_URL + '/api/chats/' + chatId + '/add_users', {
             credentials: 'include',
             method: 'POST',
             body: JSON.stringify(newUsers),

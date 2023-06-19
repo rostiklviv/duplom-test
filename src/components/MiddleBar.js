@@ -12,6 +12,7 @@ import { useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
 
+const { REACT_APP_BASE_BACKEND_URL } = process.env;
 
 let lastDate = ""
 
@@ -52,7 +53,7 @@ const MiddleBar = ({ setLeftBarOpen }) => {
 
     function loadChatMessages(id, isLoadingMore) {
         setIsLoading(true)
-        fetch('http://localhost:8000/api/messages?chat_id=' + id + '&page=' + page, {
+        fetch(REACT_APP_BASE_BACKEND_URL + '/api/messages?chat_id=' + id + '&page=' + page, {
             credentials: 'include'
         }).then(res => {
             return res.json()
@@ -75,7 +76,7 @@ const MiddleBar = ({ setLeftBarOpen }) => {
     }
 
     function loadChatInfo(id) {
-        fetch('http://localhost:8000/api/chats/' + id, {
+        fetch(REACT_APP_BASE_BACKEND_URL + '/api/chats/' + id, {
             credentials: 'include'
         }).then(res => {
             return res.json()
@@ -85,7 +86,7 @@ const MiddleBar = ({ setLeftBarOpen }) => {
     }
 
     function getLinkedItems(id) {
-        fetch('http://localhost:8000/api/messages?chat_id=' + id + '&page=' + page + '&pinned=1', {
+        fetch(REACT_APP_BASE_BACKEND_URL + '/api/messages?chat_id=' + id + '&page=' + page + '&pinned=1', {
             credentials: 'include'
         }).then(res => {
             return res.json()

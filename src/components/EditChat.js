@@ -4,6 +4,8 @@ import { getCookie } from "../utils";
 import { useState } from "react";
 import DeleteIcon from '@mui/icons-material/Delete';
 
+const { REACT_APP_BASE_BACKEND_URL } = process.env;
+
 const EditChat = ({ chatId, chat, isPrivate }) => {
 
     const [chatName, setChatName] = useState(chat?.name)
@@ -25,7 +27,7 @@ const EditChat = ({ chatId, chat, isPrivate }) => {
 
         var csrftoken = getCookie('csrftoken');
 
-        fetch('http://localhost:8000/api/chats/' + chatId, {
+        fetch(REACT_APP_BASE_BACKEND_URL + '/api/chats/' + chatId, {
             credentials: 'include',
             method: 'PATCH',
             body: formData,
@@ -40,7 +42,7 @@ const EditChat = ({ chatId, chat, isPrivate }) => {
 
         var csrftoken = getCookie('csrftoken');
 
-        fetch(`http://localhost:8000/api/chats/${chatId}`, {
+        fetch(REACT_APP_BASE_BACKEND_URL + `/api/chats/${chatId}`, {
             credentials: 'include',
             method: 'DELETE',
             headers: {

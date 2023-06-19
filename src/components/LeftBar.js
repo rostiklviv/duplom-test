@@ -51,7 +51,7 @@ const LeftBar = ({ leftBarOpen, setLeftBarOpen}) => {
     }, [dataChanged])
 
     function loadChats() {
-        fetch('http://localhost:8000/api/chats', {
+        fetch(REACT_APP_BASE_BACKEND_URL + '/api/chats', {
             credentials: 'include'
         }).then(res => {
             return res.json()

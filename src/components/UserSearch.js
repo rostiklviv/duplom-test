@@ -4,6 +4,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import { getCookie } from '../utils'
 
+const { REACT_APP_BASE_BACKEND_URL } = process.env;
 
 const UserSearch = ({ handleSpeedDialCancleAction, user, setDataChanged }) => {
 
@@ -53,7 +54,7 @@ const UserSearch = ({ handleSpeedDialCancleAction, user, setDataChanged }) => {
 
 
   function SearchUser(searchValue) {
-    fetch('http://localhost:8000/api/users?page=' + page + '&search=' + searchValue, {
+    fetch(REACT_APP_BASE_BACKEND_URL + '/api/users?page=' + page + '&search=' + searchValue, {
       credentials: 'include'
     }).then(res => {
       return res.json()
@@ -62,7 +63,7 @@ const UserSearch = ({ handleSpeedDialCancleAction, user, setDataChanged }) => {
     })
   }
   useEffect(() => {
-    fetch('http://localhost:8000/api/users?page=' + page + '&search=' + searchValue, {
+    fetch(REACT_APP_BASE_BACKEND_URL + '/api/users?page=' + page + '&search=' + searchValue, {
       credentials: 'include'
     }).then(res => {
       return res.json()
@@ -86,7 +87,7 @@ const UserSearch = ({ handleSpeedDialCancleAction, user, setDataChanged }) => {
     console.log(userId)
     const newChat = { users: usersIds, type: 'private', name: (user.id + ' ' + userId) }
 
-    fetch('http://localhost:8000/api/chats/private_chat_exists?user_id=' + userId, {
+    fetch(REACT_APP_BASE_BACKEND_URL + '/api/chats/private_chat_exists?user_id=' + userId, {
       credentials: 'include',
     }).then(res => {
       return res.json()
@@ -94,7 +95,7 @@ const UserSearch = ({ handleSpeedDialCancleAction, user, setDataChanged }) => {
       if (!data.exists) {
         var csrftoken = getCookie('csrftoken');
 
-        fetch('http://localhost:8000/api/chats', {
+        fetch(REACT_APP_BASE_BACKEND_URL + '/api/chats', {
           credentials: 'include',
           method: 'POST',
           body: JSON.stringify(newChat),

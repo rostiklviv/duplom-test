@@ -4,6 +4,8 @@ import { getCookie } from '../utils'
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import SendIcon from '@mui/icons-material/Send';
 
+const { REACT_APP_BASE_BACKEND_URL } = process.env;
+
 function SendMessageForm({id}) {
     const [newMessage, setNewMessage] = useState('')
 
@@ -13,7 +15,7 @@ function SendMessageForm({id}) {
 
         var csrftoken = getCookie('csrftoken');
 
-        fetch('http://localhost:8000/api/messages', {
+        fetch(REACT_APP_BASE_BACKEND_URL + '/api/messages', {
             credentials: 'include',
             method: 'POST',
             body: JSON.stringify(chatNewMessage),
@@ -40,7 +42,7 @@ function SendMessageForm({id}) {
 
         var csrftoken = getCookie('csrftoken');
 
-        fetch('http://localhost:8000/api/messages', {
+        fetch(REACT_APP_BASE_BACKEND_URL + '/api/messages', {
             credentials: 'include',
             method: 'POST',
             body: formData,

@@ -15,7 +15,6 @@ import CheckBoxList from "./CheckBoxList";
 import { useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
-
 const { REACT_APP_BASE_BACKEND_URL } = process.env;
 
 const ChatSettings = ({ handleDrawerClose, open, chat, chatId, linkedListItems }) => {
