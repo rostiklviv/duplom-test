@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { alpha, styled, List, ListItem, ListItemButton, ListItemAvatar, Avatar, InputBase, ListItemText, Box, IconButton } from "@mui/material";
+import { alpha, styled, List, ListItem, ListItemButton, ListItemAvatar, Avatar, InputBase, ListItemText, Box, IconButton, Pagination } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import { getCookie } from '../utils'
@@ -9,6 +9,7 @@ const { REACT_APP_BASE_BACKEND_URL } = process.env;
 const UserSearch = ({ handleSpeedDialCancleAction, user, setDataChanged }) => {
 
   const [users, setUsers] = useState([])
+  const [usersCount, setUsersCount] = useState(0)
   const [searchValue, setSearchValue] = useState('')
   const [page, setPage] = useState(1)
 
@@ -60,6 +61,7 @@ const UserSearch = ({ handleSpeedDialCancleAction, user, setDataChanged }) => {
       return res.json()
     }).then(data => {
       setUsers(data.results)
+      setUsersCount(data.count)
     })
   }
   useEffect(() => {
@@ -69,6 +71,7 @@ const UserSearch = ({ handleSpeedDialCancleAction, user, setDataChanged }) => {
       return res.json()
     }).then(data => {
       setUsers(data.results)
+      setUsersCount(data.count)
     })
   }, [])
 
@@ -116,7 +119,7 @@ const UserSearch = ({ handleSpeedDialCancleAction, user, setDataChanged }) => {
 
 
   return (
-    <div style={{ width: "95vw", maxWidth: '500px', }}>
+    <div style={{ maxWidth: '500px', }}>
       <Search>
         <SearchIconWrapper>
           <SearchIcon />
@@ -129,10 +132,11 @@ const UserSearch = ({ handleSpeedDialCancleAction, user, setDataChanged }) => {
           onChange={onChange}
         />
       </Search>
-      <List dense sx={{ width: '100%', height: "88%", overflowY: "hidden" }}>
+      <List dense sx={{ width: '100%', height: "70vh", overflowY: "auto" }}>
         {users.map((value) => {
           const labelId = `user-${value.id}`;
           return (
+            <>
             <ListItem
               key={value.id}
               disablePadding
@@ -147,9 +151,15 @@ const UserSearch = ({ handleSpeedDialCancleAction, user, setDataChanged }) => {
                 <ListItemText value={value.id} id={labelId} primary={value.last_name + " " + value.first_name} />
               </ListItemButton>
             </ListItem>
+            </>
           );
         })}
       </List>
+      {!(Math.ceil(usersCount / 20) == 1) &&
+        <div style={{ alignItems: "center", display: "flex", justifyContent: "center" }}>
+          <Pagination count={Math.ceil(usersCount / 20)} />
+        </div>
+      }
       <Box sx={{ transform: 'translateZ(0px)', flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
         <IconButton size='large' onClick={handleSpeedDialCancleAction}>
           <ClearIcon color='error' sx={{ fontSize: 50 }} />

@@ -37,7 +37,7 @@ const MiddleBar = ({ setLeftBarOpen }) => {
 
     const [messages, setMessages] = useState([])
 
-    const WS_URL = 'ws://localhost:8000/chat/' + id + '/';
+    const WS_URL = 'ws://' + REACT_APP_BASE_BACKEND_URL.substring(7) + '/chat/' + id + '/';
 
     useWebSocket(WS_URL, {
         onOpen: () => {

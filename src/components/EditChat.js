@@ -6,7 +6,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 const { REACT_APP_BASE_BACKEND_URL } = process.env;
 
-const EditChat = ({ chatId, chat, isPrivate }) => {
+const EditChat = ({ chatId, chat, isPrivate, isDiploma }) => {
 
     const [chatName, setChatName] = useState(chat?.name)
     const [chatAvatar, setChatAvatar] = useState()
@@ -22,7 +22,7 @@ const EditChat = ({ chatId, chat, isPrivate }) => {
 
     const changeData = () => {
         const formData = new FormData();
-        if (chatName !== chat?.name) { formData.append('name', chatName); chat.name = chatName}
+        if (chatName !== chat?.name) { formData.append('name', chatName); chat.name = chatName }
         if (chatAvatar !== undefined) formData.append('photo', chatAvatar);
 
         var csrftoken = getCookie('csrftoken');
@@ -54,7 +54,7 @@ const EditChat = ({ chatId, chat, isPrivate }) => {
 
     return (
         <>
-            {!isPrivate &&
+            {(!isPrivate && !isDiploma) &&
                 <div>
                     <h3 style={{ textAlign: "center", overflowWrap: "break-word" }}>Змінити назву групи</h3>
                     <TextField value={chatName} onChange={handleChatNameField} />
@@ -73,9 +73,12 @@ const EditChat = ({ chatId, chat, isPrivate }) => {
             <div>
                 <Button variant="contained" onClick={changeData}>Підтвердити зміну</Button>
             </div>
-            <div>
-                <Button startIcon={<DeleteIcon />} color='error' onClick={deleteChat} >Видалити чат</Button>
-            </div>
+            {!isDiploma &&
+                <div>
+                    <Button startIcon={<DeleteIcon />} color='error' onClick={deleteChat} >Видалити чат</Button>
+                </div>
+            }
+
         </>
     );
 }

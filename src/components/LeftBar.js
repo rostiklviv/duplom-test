@@ -14,6 +14,8 @@ import DiplomaChatJoin from './DiplomaChatJoin';
 import { useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
+import SearchBar from './SearchBar';
+import SearchIcon from '@mui/icons-material/Search';
 
 const { REACT_APP_BASE_BACKEND_URL } = process.env;
 
@@ -42,7 +44,7 @@ const LeftBar = ({ leftBarOpen, setLeftBarOpen}) => {
         }, 5000);
         return () => clearInterval(interval);
 
-    }, [getCookie("user_id")])
+    }, [user?.id])
 
     useEffect(() => {
         loadChats()
@@ -129,13 +131,15 @@ const LeftBar = ({ leftBarOpen, setLeftBarOpen}) => {
 
     if (user.id) return (
         <Drawer
+        id="3"
             sx={{
                 width: leftBarOpen ? (isTablet ? drawerWidth : '100vw') : 0,
                 '& .MuiDrawer-paper': {
                     width: leftBarOpen ? (isTablet ? drawerWidth : '100vw') : 0,
                     boxSizing: 'border-box',
+                    overflowY: 'hidden'
                 },
-
+                overflowY: 'hidden'
             }}
             variant="persistent"
             anchor="left"
@@ -147,6 +151,9 @@ const LeftBar = ({ leftBarOpen, setLeftBarOpen}) => {
                         REACT_APP_BASE_BACKEND_URL + user.profile.photo : "/broken-image.jpg"} />
                     <h3 style={{ overflowWrap: "break-word", flex:1 }}>{user?.first_name} {user?.last_name}</h3>
                 </div>
+                <IconButton onClick={handleSpeedDialSelectPersonalChat}>
+                    <SearchIcon />
+                </IconButton>
                { !isTablet &&
                 <IconButton onClick={handleDrawerState}>
                     <CloseIcon />
@@ -154,7 +161,7 @@ const LeftBar = ({ leftBarOpen, setLeftBarOpen}) => {
             
             </div>
             {searchMenuOpen && <UserSearch handleSpeedDialCancleAction={handleSpeedDialCancleAction} user={user} setDataChanged={setDataChanged} />}
-            {selectMenuOpen && <CheckBoxList handleCloseAction={handleSpeedDialCancleAction} setDataChanged={setDataChanged} />}
+            {selectMenuOpen && <CheckBoxList handleCloseAction={handleSpeedDialCancleAction} setDataChanged={setDataChanged} user={user} />}
             {(!selectMenuOpen && !searchMenuOpen) &&
                 <>
                     <List style={{ width: "100%", height: "88%", overflowY: "auto" }}>

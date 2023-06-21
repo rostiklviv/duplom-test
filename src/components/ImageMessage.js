@@ -8,7 +8,7 @@ export default function ImageMessage({ message }) {
     const [open, setOpen] = React.useState(false);
     const handleClose = () => {
         console.log(videoRef.current)
-        videoRef.current.pause()
+        // videoRef.current.pause()
         setOpen(false);
     };
     const handleOpen = () => {

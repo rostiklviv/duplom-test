@@ -63,7 +63,7 @@ function SendMessageForm({id}) {
         >
             <InputBase
                 sx={{ ml: 2, flex: 1 }}
-                placeholder="Type something..."
+                placeholder="Введіть щось..."
                 value={newMessage}
                 onChange={onChange}
             />

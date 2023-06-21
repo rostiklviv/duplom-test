@@ -2,10 +2,14 @@ import { TextField, Button, Dialog, Avatar, IconButton } from "@mui/material";
 import { useState } from "react";
 import CloseIcon from '@mui/icons-material/Close';
 import { getCookie } from "../utils";
+import { useCookies } from "react-cookie"
+import {useNavigate} from 'react-router-dom'
 
 const { REACT_APP_BASE_BACKEND_URL } = process.env;
 
 const EditUser = ({ open, handleClose, user }) => {
+    const [cookies, setCookie, removeCookie] = useCookies(['sessionid']);
+    const navigate = useNavigate()
 
     const [userFirstName, setUserFirstName] = useState(user.first_name)
     const [userMiddleName, setUserMiddleName] = useState(user.profile.patronymic)
@@ -26,18 +30,18 @@ const EditUser = ({ open, handleClose, user }) => {
             formData.append('first_name', userFirstName)
             user.first_name = userFirstName
         }
-        if(userLastName !== user.last_name) {
+        if (userLastName !== user.last_name) {
             formData.append('last_name', userLastName);
             user.last_name = userLastName
-       }
+        }
         userMiddleName !== user.profile.patronymic && formData.append('profile.patronymic', userMiddleName); user.profile.patronymic = userMiddleName;
         userDiplomaReviewer !== user.profile.diploma_reviewer && formData.append('profile.diploma_reviewer', userDiplomaReviewer);
         userDiplomaFirstSupervisor !== user.profile.diploma_supervisor_1 && formData.append('profile.diploma_supervisor_1', userDiplomaFirstSupervisor);
         userDiplomaSecondSupervisor !== user.profile.diploma_supervisor_2 && formData.append('profile.diploma_supervisor_2', userDiplomaSecondSupervisor);
         userDiplomaTopic !== user.profile.diploma_topic && formData.append('profile.diploma_topic', userDiplomaTopic);
-        if(userAvatar !== undefined && userAvatar !== REACT_APP_BASE_BACKEND_URL + user.profile.photo) {
-             formData.append('profile.photo', userAvatar);
-             user.profile.photo = userAvatar
+        if (userAvatar !== undefined && userAvatar !== REACT_APP_BASE_BACKEND_URL + user.profile.photo) {
+            formData.append('profile.photo', userAvatar);
+            user.profile.photo = userAvatar
         }
         // userMiddleName !== user.profile.patronymic && formData.append('profile.patronymic', userMiddleName); user.profile.patronymic = userMiddleName;
         // userLastName !== user.last_name && formData.append('last_name', userLastName);
@@ -56,6 +60,20 @@ const EditUser = ({ open, handleClose, user }) => {
             headers: {
                 'X-CSRFToken': csrftoken
             },
+        })
+    }
+
+    const logout = () => {
+        var csrftoken = getCookie('csrftoken');
+        fetch(REACT_APP_BASE_BACKEND_URL + "/admin/logout", {
+            method: 'POST',
+            credentials: 'include',
+            redirect: 'follow',
+            headers: {
+                'X-CSRFToken': csrftoken
+            },
+        }).then(res => {
+            navigate('/login')
         })
     }
 
@@ -111,6 +129,7 @@ const EditUser = ({ open, handleClose, user }) => {
                     <TextField value={userDiplomaReviewer} onChange={(event) => { setUserDiplomaReviewer(event.target.value) }} />
                 </div>
                 <Button variant="contained" size="large" sx={{ marginTop: '20px' }} onClick={changeData}>Оновити дані</Button>
+                <Button variant="contained" size="large" sx={{ marginTop: '5px' }} color="error" onClick={logout}>Вийти</Button>
             </Dialog>
         </>
     );

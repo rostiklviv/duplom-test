@@ -30,9 +30,9 @@ const Login = () => {
 
   return (
     <div className="App">
-      <div style={{ width: "30%", height: "80%",  display: "flex", justifyContent: "space-around", alignItems: "center", flexDirection: "column" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100vw", maxWidth: '500px', m: 5, gap: "30px"  }}>
         <h1>Університетський чат</h1>
-        <img src='https://quarsu.nltu.edu.ua//storage/pages/March2020/Logo_NLTU.png' style={{ width: "300px", height: "400px" }}></img>
+        <img src='https://quarsu.nltu.edu.ua//storage/pages/March2020/Logo_NLTU.png' style={{ width: "100vw", maxWidth: '500px', aspectRatio: '503/700' }}></img>
         <GoogleButton
           onClick={openGoogleLoginPage}
           label="Sign in with Google"

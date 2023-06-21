@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Drawer, List, IconButton, Divider, Button, Avatar } from "@mui/material";
 import UserItem from "./UserItem";
 import CloseIcon from '@mui/icons-material/Close';
@@ -14,12 +14,14 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import CheckBoxList from "./CheckBoxList";
 import { useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { UserContext } from "./UserContext";
 
 const { REACT_APP_BASE_BACKEND_URL } = process.env;
 
 const ChatSettings = ({ handleDrawerClose, open, chat, chatId, linkedListItems }) => {
     const theme = useTheme();
     const isTablet = useMediaQuery(theme.breakpoints.up('sm'));
+    const { user } = useContext(UserContext)
 
 
     const [isLinkedList, setIsLinkedList] = useState(false)
@@ -29,7 +31,7 @@ const ChatSettings = ({ handleDrawerClose, open, chat, chatId, linkedListItems }
     const [addUsersBarActive, setAddUsersBarActive] = useState(false);
     const [documents, setDocuments] = useState([]);
 
-    const isOwner = (getCookie("user_id") == chat?.creator?.id)
+    const isOwner = (user?.id == chat?.creator?.id)
     const isPrivate = (chat?.type === "private")
     const isDiploma = (chat?.type === "diploma")
 
@@ -119,8 +121,8 @@ const ChatSettings = ({ handleDrawerClose, open, chat, chatId, linkedListItems }
             <Divider />
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "25px", maxHeight: '90%', paddingBottom: 10 }}>
                 {addUsersBarActive && <CheckBoxList handleCloseAction={changeAddUsersState} isAddMoreUsers={true} chatId={chatId} />}
-                {isPrivate && <EditChat chatId={chatId} chat={chat} isPrivate={isPrivate} />}
-                {editBarActive && <EditChat chatId={chatId} chat={chat} isPrivate={isPrivate} />}
+                {(isPrivate || editBarActive) && <EditChat chatId={chatId} chat={chat} isPrivate={isPrivate} isDiploma={isDiploma} />}
+                
                 {!addUsersBarActive && !editBarActive && !isPrivate &&
                     <>
                         <div>
@@ -137,8 +139,8 @@ const ChatSettings = ({ handleDrawerClose, open, chat, chatId, linkedListItems }
                         <div style={{ display: 'flex', alignItems: 'flex-start' }}>
                             <List sx={{ overflowY: "auto", flex: 1, }}>
                                 {!(isLinkedList || isLinksList) &&
-                                    chat?.users?.map(user => (
-                                        <UserItem user={user} isOwner={isOwner} currentUserId={getCookie("user_id")} />
+                                    chat?.users?.map(userItem => (
+                                        <UserItem user={userItem} isOwner={isOwner} currentUserId={user?.id} />
                                     ))
                                 }
                                 {isLinkedList &&
@@ -150,7 +152,7 @@ const ChatSettings = ({ handleDrawerClose, open, chat, chatId, linkedListItems }
                                     <LinksItem link={link}/>
                                 ))}
                             </List>
-                            {!(isLinkedList || isLinksList) &&
+                            {!(isLinkedList || isLinksList || isDiploma) &&
                                 <IconButton onClick={changeAddUsersState}>
                                     <PersonAddIcon />
                                 </IconButton>
